@@ -1,0 +1,306 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="6ae7ebe7728bad2c774f49256a278f25da7d367b" content="6ae7ebe7728bad2c774f49256a278f25da7d367b" />
+    <title>chessreview.net</title>
+    <link rel="icon" type="image/x-icon" href="./images/logo.webp" />
+    <link rel="stylesheet" href="./libraries/board/chessboard-1.0.0.css" />
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        background-color: #1a1a1a;
+      }
+      #settingsMenuContainer {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        font-size: 2.5rem;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+      }
+      #evalMenuContainer {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        font-size: 2.5rem;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+      }
+      .textInput {
+        width: 100%;
+        max-width: 400px;
+        padding: 0.75rem 1rem;
+        margin: 1rem 0;
+        font-size: 1.5rem;
+        color: #fff;
+        background-color: #333;
+        border: 2px solid #444;
+        border-radius: 8px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        text-align: center;
+      }
+      .textInput:focus {
+        outline: none;
+        border-color: #66aaff;
+        box-shadow: 0 0 10px rgba(102, 170, 255, 0.5);
+      }
+      .textInput::placeholder {
+        color: white;
+      }
+      .selectStyle {
+        width: 100%;
+        max-width: 400px;
+        padding: 0.75rem 1rem;
+        margin: 1rem 0;
+        font-size: 1.5rem;
+        color: #fff;
+        background-color: #333;
+        border: 2px solid #444;
+        border-radius: 8px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        appearance: none;
+        text-align: center;
+        text-align-last: center;
+      }
+      .selectStyle:focus {
+        outline: none;
+        border-color: #66aaff;
+        box-shadow: 0 0 10px rgba(102, 170, 255, 0.5);
+      }
+      .buttonStyle {
+        width: 100%;
+        max-width: 400px;
+        padding: 0.75rem 1rem;
+        margin: 1rem 0;
+        font-size: 1.5rem;
+        color: #fff;
+        background-color: #333;
+        border: 2px solid #444;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      }
+      .buttonStyle:focus,
+      .buttonStyle:active {
+        outline: none;
+        border-color: #66aaff;
+        box-shadow: 0 0 10px rgba(102, 170, 255, 0.5);
+      }
+      #boardMenuContainer {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+      }
+      /* move classification animation classes */
+      @keyframes squareGlowAnimation {
+        0% {
+          filter: brightness(1.3);
+          z-index: 1;
+        }
+        100% {
+          filter: brightness(1);
+          z-index: 1;
+        }
+      }
+      @keyframes squareMateGlowAnimation {
+        0% {
+          filter: brightness(2);
+          z-index: 1;
+        }
+        100% {
+          filter: brightness(1);
+          z-index: 1;
+        }
+      }
+      .highlight-square-blunder {
+        background-color: rgb(204, 54, 52);
+        animation: squareGlowAnimation 1s ease;
+      }
+      .highlight-square-mistake {
+        background-color: rgb(229, 143, 42);
+        animation: squareGlowAnimation 1s ease;
+      }
+      .highlight-square-inaccuracy {
+        background-color: rgb(247, 191, 68);
+        animation: squareGlowAnimation 1s ease;
+      }
+      .highlight-square-good {
+        background-color: rgb(119, 145, 95);
+        animation: squareGlowAnimation 1s ease;
+      }
+      .highlight-square-excellent {
+        background-color: rgb(144, 185, 104);
+        animation: squareGlowAnimation 1s ease;
+      }
+      .highlight-square-best {
+        background-color: rgb(129, 182, 76);
+        animation: squareGlowAnimation 1s ease;
+      }
+      .highlight-square-mate {
+        background-color: rgb(90, 90, 90);
+        animation: squareMateGlowAnimation 1s ease;
+      }
+      .highlight-square-glowEnd {
+        box-shadow: inset 0 0 3px 3px rgb(93, 139, 176);
+      }
+      .highlight-square-glowStart {
+        box-shadow: inset 0 0 3px 3px rgb(93, 139, 176);
+      }
+      .move-classification-image {
+        z-index: 9999;
+      }
+      /* chessboard buttons (arrows and refresh) */
+      #chessboard-button-group {
+        padding-top: 0.25rem;
+        padding-left: 0;
+        display: flex;
+        flex-direction: row;
+        gap: 0.25rem;
+      }
+      .chessboard-buttonStyle {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        font-size: 1.5rem;
+        color: #fff;
+        background-color: #333;
+        border: 2px solid #444;
+        cursor: pointer;
+      }
+      .chessboard-buttonStyle:focus,
+      .chessboard-buttonStyle:active {
+        outline: none;
+        border: 2px solid #636363;
+      }
+      /* eval bar */
+      .evalbar-flex-container {
+        display: flex;
+        gap: 0.25rem;
+      }
+      #eval-bar-container {
+        /*   border: 2px solid #444; */
+        overflow: hidden;
+        width: 30px;
+        height: 300px;
+      }
+      .eval-bar-segment {
+        width: 100%;
+      }
+      /* board text info */
+      #boardTextInfo {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        font-size: 2rem;
+        padding-left: 2rem;
+        padding-bottom: 0.1rem;
+        color: white;
+      }
+      /* href icons */
+      #href-icons-container {
+        position: absolute;
+        display: flex;
+        top: 0.5rem;
+        left: 0.5rem;
+        gap: 0.5rem;
+        z-index: 10;
+      }
+      .href-icons {
+        cursor: pointer;
+        border-radius: 0.5rem;
+        width: 3.2rem;
+        height: 3.2rem;
+      }
+      .href-icons:hover {
+        transform: scale(1.05);
+      }
+      #kofiLogo {
+        border: 0.4rem solid #8c4920;
+      }
+      #discordLogo {
+        border: 0.4rem solid #2f4f81;
+      }
+      #codeLogo {
+        border: 0.4rem solid #8f2b49;
+      }
+      .appearanceNone {
+        appearance: none;
+      }
+      /* privacy */
+      #privacyText {
+        position: absolute;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        bottom: 2px;
+        right: 2px;
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: white;
+      }
+      .wColorPrivacyText {
+        color: white !important;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="./libraries/jquery/jquery-3.7.1.min.js"></script>
+    <script src="script.js"></script>
+    <script src="./libraries/board/chessboard-1.0.0.js"></script>
+    <script src="./libraries/chessjs/chess-0.10.3.js"></script>
+    <div id="settingsMenuContainer">
+      <div>enter username</div>
+      <input class="textInput" type="text" placeholder="username" autocomplete="off" />
+      <div>select chess website</div>
+      <select class="selectStyle">
+        <option value="chess.com">chess.com</option>
+        <option value="lichess.org">lichess.org</option>
+      </select>
+      <div>start game review</div>
+      <button class="buttonStyle">game review</button>
+      <button id="loadTimeText" class="buttonStyle"></button>
+    </div>
+    <div id="evalMenuContainer">
+      <div id="evalPercentage"></div>
+      <div id="evalText1"></div>
+      <div id="evalText2"></div>
+    </div>
+    <div id="boardMenuContainer">
+      <div id="boardTextInfo">press left or right arrow keys</div>
+      <div class="evalbar-flex-container">
+        <div id="eval-bar-container">
+          <div id="eval-bar-segment-top" class="eval-bar-segment"></div>
+          <div id="eval-bar-segment-bottom" class="eval-bar-segment"></div>
+        </div>
+        <div id="board"></div>
+      </div>
+      <div id="chessboard-button-group">
+        <button id="left-chessboard-btn" class="chessboard-buttonStyle">left</button>
+        <button id="right-chessboard-btn" class="chessboard-buttonStyle">right</button>
+        <button id="reload-chessboard-btn" class="chessboard-buttonStyle">reload</button>
+      </div>
+    </div>
+    <div id="href-icons-container">
+      <a class="appearanceNone" href="https://ko-fi.com/leetdev" target="_blank"> <img class="href-icons" id="kofiLogo" src="./images/kofiLogo.webp" /> </a>
+      <a class="appearanceNone" href="https://discord.gg/PXyMnbWgM2" target="_blank"> <img class="href-icons" id="discordLogo" src="./images/discordLogo.webp" /> </a>
+      <a class="appearanceNone" href="https://github.com/Leetdevs" target="_blank"> <img class="href-icons" id="codeLogo" src="./images/codeLogo.webp" /> </a>
+    </div>
+    <div id="privacyText">
+      <span>(c) Byp 2025 I</span>
+      <a class="appearanceNone wColorPrivacyText" href="./privacy.html" target="_blank" rel="noopener noreferrer">
+        <span>Privacy Policy</span>
+      </a>
+    </div>
+  </body>
+</html>
