@@ -12,6 +12,39 @@ function reloadPage() {
   window.location.reload();
 }
 
+/* calculate accuracy */
+function calcAccuracy(classificationsArr) {
+  let accuracy = 100;
+  let perMove = 100 / classificationsArr.length;
+  for (let i = 0; i < classificationsArr.length; i++) {
+    let foundClassif = false;
+    const classif = classificationsArr[i];
+    if (classif.includes("best") || classif.includes("mate")) {
+      // no need to subtract
+      foundClassif = true;
+    } else if (classif.includes("excellent")) {
+      accuracy -= perMove * 0.2;
+      foundClassif = true;
+    } else if (classif.includes("good")) {
+      accuracy -= perMove * 0.4;
+      foundClassif = true;
+    } else if (classif.includes("inaccuracy")) {
+      accuracy -= perMove * 0.6;
+      foundClassif = true;
+    } else if (classif.includes("mistake")) {
+      accuracy -= perMove * 0.8;
+      foundClassif = true;
+    } else if (classif.includes("blunder")) {
+      accuracy -= perMove;
+      foundClassif = true;
+    } else if (!foundClassif) {
+      console.error("DID NOT FIND CLASSIFICATION IN CALCULATE ACCURACY");
+    }
+  }
+  return Math.round(accuracy * 10) / 10;
+}
+window.calcAccuracy = calcAccuracy;
+
 async function stockfishEval(fen, depth) {
   return new Promise((resolve, reject) => {
     const stockfish = new Worker("./libraries/stockfish/stockfish-16.1-lite-single.js");
@@ -373,7 +406,7 @@ function main() {
         setBoardTextInfo(`${cPos.classification}#`);
       }
     } else {
-      setBoardTextInfo("press left or right arrow keys");
+      window.boardAccuracyTextInfo(window.whiteMovesArr, window.blackMovesArr);
     }
     /* return the current evaluation to be able to update the eval bar */
     return cPos.evaluation;
@@ -590,6 +623,27 @@ function main() {
       /* get more accurate board size */
       window.accurateBoardSize = document.getElementsByClassName("board-b72b1")[0].clientWidth;
       window.updateBoardSize();
+
+      /* calculate accuracy and set it as text */
+      window.whiteMovesArr = [];
+      window.blackMovesArr = [];
+      for (let i = 0; i < evaluatedFenArray.length; i++) {
+        const currArrPos = evaluatedFenArray[i];
+        const moveCounter = i + 1;
+        if (moveCounter % 2 === 0) {
+          whiteMovesArr.push(currArrPos.classification);
+        } else {
+          blackMovesArr.push(currArrPos.classification);
+        }
+      }
+
+      window.whiteMovesArr = window.whiteMovesArr.filter((item) => !item.includes("none"));
+      window.blackMovesArr = window.blackMovesArr.filter((item) => !item.includes("none"));
+
+      window.boardAccuracyTextInfo = function (wArr, bArr) {
+        setBoardTextInfo(`accuracy white ${calcAccuracy(wArr)}% black ${calcAccuracy(bArr)}%`);
+      };
+      window.boardAccuracyTextInfo(window.whiteMovesArr, window.blackMovesArr);
 
       /* flip the board and eval bar so it is from the position of my player */
       // log(myPlayerColor);
